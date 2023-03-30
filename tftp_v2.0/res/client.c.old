@@ -1,27 +1,26 @@
-/*#include <stdio.h>*/
-/*#include <unistd.h>*/
-/*#include <sys/types.h>*/
-/*#include <sys/socket.h>*/
-/*#include <netinet/in.h>*/
-/*#include <arpa/inet.h>*/
-/*#include <stdlib.h>*/
-/*#include <string.h>*/
+#include <stdio.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <stdlib.h>
+#include <string.h>
 
-/*#define SIZE 128*/
-/*#define MAX 1024*/
-/*char buf[MAX];*/
-/*int confd = -1;*/
-/*typedef struct sockaddr_in SAI;*/
-/*typedef struct sockaddr SA;*/
-/*SAI seraddr;*/
+#define SIZE 128
+#define MAX 1024
+int confd = -1;
+char buf[MAX];
+typedef struct sockaddr_in SAI;
+typedef struct sockaddr SA;
+SAI seraddr;
 
-/*#define err_log(log)\*/
-	/*do{\*/
-		/*perror(log);\*/
-		/*return;\*/
-	/*}while(0)*/
+#define err_log(log)\
+	do{\
+		perror(log);\
+		return;\
+	}while(0)
 
-#include "client.h"
 void do_get(char order[])
 {
 	memset(buf, 0, sizeof(buf));
@@ -100,17 +99,17 @@ void do_put(char order[])
 		return;
 	}
 	
-	FILE *fp = fopen(order + 4, "r");
-	if (NULL == fp)
-	{
-		printf("file not found.\n");
-		close(confd);
-		return;
-	}
 	strcpy(buf, order);
 	buf[strlen(order)] = ' ';
 	send(confd, buf, strlen(buf), 0);
 
+	FILE *fp = fopen(order + 4, "r");
+	if (NULL == fp)
+	{
+		perror("fopen");
+		close(confd);
+		return;
+	}
 	while (1)
 	{
 		memset(buf, 0, sizeof(buf));
@@ -155,4 +154,45 @@ void do_help()
 	puts("clear        clear the system output");
 	puts("help         show the commands that can be used");
 	puts("exit         exit the client application");
+}
+
+
+
+int main(int argc, const char* argv[])
+{
+	if (3 > argc)
+	{
+		fprintf(stderr, "FORMAT: ./APP IP PORT");
+		return -1;
+	}
+
+	seraddr.sin_family = AF_INET;
+	seraddr.sin_port = htons(atoi(argv[2]));
+	seraddr.sin_addr.s_addr = inet_addr(argv[1]);
+
+	char order[SIZE];
+
+	while (1)
+	{
+		printf(">>tftp:");
+		fgets(order, SIZE, stdin);
+		order[strlen(order) - 1] = 0;
+
+		if (strncmp(order, "get ", 4) == 0)
+			do_get(order);
+		else if (strncmp(order, "put ", 4) == 0)
+			do_put(order);
+		else if (strncmp(order, "list", 4) == 0)
+			do_list(order);
+		else if (strncmp(order, "help", 4) == 0)
+			do_help();
+		else if (strncmp(order, "exit", 4) == 0)
+			exit(0);
+		else if (strncmp(order, "clear", 5) == 0)
+			system("clear");
+		else printf("%s: command can not found.\n", order);
+		memset(order, 0, sizeof(order));
+	}
+
+	return 0;
 }
