@@ -7,6 +7,7 @@
 #include <string.h>
 
 int main(int argc, const char *argv[]) {
+	//默认文件夹路径
 	char *dir_path = ".";
 	if (2 == argc) dir_path = argv[1];
 
@@ -22,6 +23,7 @@ int main(int argc, const char *argv[]) {
 	memset(file_path, 0, sizeof(file_path));
 	struct dirent *direntp = NULL;
 
+	//ls的格式输出
 	puts("FILE_SIZE\tLAST_ACCESS_TIME\t\tLAST_MODIFY_TIME\t\tFILE_TYPE\tFILE_NAME");
 	while (1) { 
 		direntp = readdir(dirp);

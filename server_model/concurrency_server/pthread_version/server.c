@@ -22,6 +22,7 @@ char buf[MAX];
 		goto ERR;\
 	}while(0)
 
+//传入的参数是accept到的connfd
 void *deal(void *arg)
 {
 	int connfd = (int)arg;
@@ -73,7 +74,8 @@ int main()
 			perror("accept");
 			continue;
 		}
-
+		
+		//创建线程
 		pthread_t tid;
 		int ret = pthread_create(&tid, NULL, deal, (void *)connfd);
 		if (0 > ret) 
@@ -81,9 +83,9 @@ int main()
 			printf("pthread_create failed.\n");
 			break;
 		}
+		//主线程和子线程进行分离，摆脱关系
 		pthread_detach(tid);
 	}
-
 	close(listenfd);
 	return 0;
 ERR1:

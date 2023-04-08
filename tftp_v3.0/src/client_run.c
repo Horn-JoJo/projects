@@ -1,15 +1,15 @@
-#include "client.h"
+#include "../include/client.h"
 
 int main(int argc, const char* argv[])
 {
-	if (3 > argc)
+	if (2 != argc)
 	{
-		fprintf(stderr, "FORMAT: ./APP IP PORT\n");
+		fprintf(stderr, "FORMAT: ./APP IP \n");
 		return -1;
 	}
 
 	seraddr.sin_family = AF_INET;
-	seraddr.sin_port = htons(atoi(argv[2]));
+	seraddr.sin_port = htons(9999);
 	seraddr.sin_addr.s_addr = inet_addr(argv[1]);
 
 	char order[SIZE];
