@@ -1,27 +1,5 @@
-/*#include <stdio.h>*/
-/*#include <unistd.h>*/
-/*#include <sys/types.h>*/
-/*#include <sys/socket.h>*/
-/*#include <netinet/in.h>*/
-/*#include <arpa/inet.h>*/
-/*#include <stdlib.h>*/
-/*#include <string.h>*/
+#include "../include/client.h"
 
-/*#define SIZE 128*/
-/*#define MAX 1024*/
-/*char buf[MAX];*/
-/*int confd = -1;*/
-/*typedef struct sockaddr_in SAI;*/
-/*typedef struct sockaddr SA;*/
-/*SAI seraddr;*/
-
-/*#define err_log(log)\*/
-	/*do{\*/
-		/*perror(log);\*/
-		/*return;\*/
-	/*}while(0)*/
-
-#include "client.h"
 void do_get(char order[])
 {
 	memset(buf, 0, sizeof(buf));

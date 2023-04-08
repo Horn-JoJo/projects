@@ -1,23 +1,4 @@
-/*#include <stdio.h>*/
-/*#include <unistd.h>*/
-/*#include <sys/types.h>*/
-/*#include <sys/socket.h>*/
-/*#include <arpa/inet.h>*/
-/*#include <stdlib.h>*/
-/*#include <string.h>*/
-/*#include <dirent.h>*/
-
-/*#define MAX 1024*/
-/*char buf[MAX];*/
-/*int confd;*/
-
-/*typedef struct sockaddr_in SAI;*/
-/*typedef struct sockaddr SA;*/
-/*SAI seraddr, cliaddr;*/
-/*#define PATH "../res/"*/
-
 #include "../include/server.h"
-/*addrlen = sizeof(cliaddr);*/
 
 void list_files()
 {
