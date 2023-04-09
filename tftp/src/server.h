@@ -1,6 +1,8 @@
 #ifndef _SERVAR_H
 #define _SERVAR_H
 #include "net.h"
+#include "ls.h"
+#include <pthread.h>
 
 #define PATH "../res/"
 socklen_t addrlen;

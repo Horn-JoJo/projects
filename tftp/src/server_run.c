@@ -1,4 +1,3 @@
-#include<pthread.h>
 #include "../include/server.h"
 
 void * worker(void * arg) 
@@ -69,8 +68,7 @@ int main(int argc, const char * argv[])
 	// char order[128];
 	addrlen = sizeof(cliaddr);
 
-	//循环服务器模型。
-	//缺陷：一次只能接收一个，只有当这个连接上的套接字逻辑处理完后才能接收下一个
+	//多线程并发服务器模型
 	while (1)
 	{
 		confd = accept(listenfd, (SA *)&cliaddr, &addrlen);
@@ -93,5 +91,6 @@ int main(int argc, const char * argv[])
 		/*==========================================================*/	
 	}
 	close(listenfd);
+
 	return 0;
 }
