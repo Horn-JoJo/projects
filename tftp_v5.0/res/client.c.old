@@ -1,22 +1,28 @@
-#include "../include/client.h"
+#include <stdio.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define SIZE 128
+#define MAX 1024
+int confd = -1;
+char buf[MAX];
+typedef struct sockaddr_in SAI;
+typedef struct sockaddr SA;
+SAI seraddr;
+
+#define err_log(log)\
+	do{\
+		perror(log);\
+		return;\
+	}while(0)
 
 void do_get(char order[])
 {
-	//这里需要找空格后出现的第一个字符位置,
-	//根据输入的逻辑, get指令后必然有一个空格
-	char *file = order + 4;
-	while (*file != 0) 
-	{
-		if (*file != ' ') break;
-		file++;
-	}
-
-	if (*file == ' ') 
-	{
-		printf("Please input a file name!!!\n");
-		return;
-	}
-
 	memset(buf, 0, sizeof(buf));
 	confd = socket(AF_INET, SOCK_STREAM, 0);
 	if (0 > confd)
@@ -63,7 +69,7 @@ void do_get(char order[])
 		isExist = 1;
 		if (NULL == fp)
 		{
-			fp = fopen(file, "a+");
+			fp = fopen(order + 4, "a+");
 			if (NULL == fp)
 			{
 				perror("fopen");
@@ -79,20 +85,6 @@ void do_get(char order[])
 
 void do_put(char order[])
 {
-	//这里需要找空格后出现的第一个字符位置,
-	//根据输入的逻辑, put指令后必然有一个空格
-	char *file = order + 4;
-	while (*file != 0) 
-	{
-		if (*file != ' ') break;
-		file++;
-	}
-	if (*file == ' ') 
-	{
-		printf("Please input a file name!!!\n");
-		return;
-	}
-
 	memset(buf, 0, sizeof(buf));
 	confd = socket(AF_INET, SOCK_STREAM, 0);
 	if (0 > confd) 
@@ -107,19 +99,17 @@ void do_put(char order[])
 		return;
 	}
 	
-	FILE *fp = fopen(file, "r");
-	//FILE *fp = fopen(order + 4, "r");
+	strcpy(buf, order);
+	buf[strlen(order)] = ' ';
+	send(confd, buf, strlen(buf), 0);
+
+	FILE *fp = fopen(order + 4, "r");
 	if (NULL == fp)
 	{
-		printf("file not found.\n");
+		perror("fopen");
 		close(confd);
 		return;
 	}
-	
-	strcpy(buf, order);
-	buf[strlen(order)] = '#';//命令的结束标识
-	send(confd, buf, strlen(buf), 0);
-
 	while (1)
 	{
 		memset(buf, 0, sizeof(buf));
@@ -164,4 +154,45 @@ void do_help()
 	puts("clear        clear the system output");
 	puts("help         show the commands that can be used");
 	puts("exit         exit the client application");
+}
+
+
+
+int main(int argc, const char* argv[])
+{
+	if (3 > argc)
+	{
+		fprintf(stderr, "FORMAT: ./APP IP PORT");
+		return -1;
+	}
+
+	seraddr.sin_family = AF_INET;
+	seraddr.sin_port = htons(atoi(argv[2]));
+	seraddr.sin_addr.s_addr = inet_addr(argv[1]);
+
+	char order[SIZE];
+
+	while (1)
+	{
+		printf(">>tftp:");
+		fgets(order, SIZE, stdin);
+		order[strlen(order) - 1] = 0;
+
+		if (strncmp(order, "get ", 4) == 0)
+			do_get(order);
+		else if (strncmp(order, "put ", 4) == 0)
+			do_put(order);
+		else if (strncmp(order, "list", 4) == 0)
+			do_list(order);
+		else if (strncmp(order, "help", 4) == 0)
+			do_help();
+		else if (strncmp(order, "exit", 4) == 0)
+			exit(0);
+		else if (strncmp(order, "clear", 5) == 0)
+			system("clear");
+		else printf("%s: command can not found.\n", order);
+		memset(order, 0, sizeof(order));
+	}
+
+	return 0;
 }
