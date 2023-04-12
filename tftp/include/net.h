@@ -17,6 +17,12 @@ int confd;//双方建立通信的套接字
 typedef struct sockaddr_in SAI;//internet 地址结构体
 typedef struct sockaddr SA;//通用地址结构体
 SAI seraddr, cliaddr;//服务器端的网络地址，客户端的网络地址
+
+#define err_log(log, ERR)\
+	do{\
+		perror(log);\
+		goto ERR;\
+	}while(0);
 //socklen_t addrlen;//accept时需要指定客户端的长度
 #endif
 

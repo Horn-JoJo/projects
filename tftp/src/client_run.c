@@ -30,8 +30,10 @@ int main(int argc, const char* argv[])
 			do_help();
 		else if (strncmp(order, "exit", 4) == 0)
 			exit(0);
-		else if (strncmp(order, "clear", 5) == 0)
+		else if (strncmp(order, "clear", 5) == 0 || strncmp(order, "cls", 3) == 0)
 			system("clear");
+		else if (strncmp(order, "lock", 4) == 0)
+			do_lock();//对本地文件进行加密
 		else printf("%s: command can not found.\n%s: or the input format is not wrong, please input help to look after right format.\n", order, order);
 		memset(order, 0, sizeof(order));
 	}

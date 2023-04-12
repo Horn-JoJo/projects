@@ -139,8 +139,8 @@ void do_list(char cmd[])
 {
 	memset(buf, 0, sizeof(buf));
 	confd = socket(AF_INET, SOCK_STREAM, 0);
-	if (0 > confd) err_log("do_list:socket");
-	if (0 > connect(confd, (SA *)&seraddr, sizeof(seraddr))) err_log("do_list:connect");
+	if (0 > confd) err_log("do_list:socket", ERR);//直接return
+	if (0 > connect(confd, (SA *)&seraddr, sizeof(seraddr))) err_log("do_list:connect", ERR1);
 
 	send(confd, cmd, strlen(cmd), 0);
 
@@ -152,7 +152,10 @@ void do_list(char cmd[])
 		if (0 == size) break;
 		puts(buf);
 	}
+ERR1:
 	close(confd);
+ERR:
+	return;
 }
 
 void do_help()
@@ -162,6 +165,7 @@ void do_help()
 	puts("get file     download the file named file to client");
 	puts("put file     upload the file named file to server");
 	puts("clear        clear the system output");
+	puts("en/decrypt   encrypt or decrypt a file");
 	puts("help         show the commands that can be used");
 	puts("exit         exit the client application");
 }
