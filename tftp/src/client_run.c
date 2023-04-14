@@ -12,6 +12,7 @@ int main(int argc, const char* argv[])
 	seraddr.sin_port = htons(9999);
 	seraddr.sin_addr.s_addr = inet_addr(argv[1]);
 
+	//order的操作小于128
 	char order[SIZE];
 
 	while (1)
@@ -29,12 +30,15 @@ int main(int argc, const char* argv[])
 		else if (strncmp(order, "help", 4) == 0)
 			do_help();
 		else if (strncmp(order, "exit", 4) == 0)
+		{
+			printf("Thanks for your welcom, ByeBye...\n");
 			exit(0);
+		}
 		else if (strncmp(order, "clear", 5) == 0 || strncmp(order, "cls", 3) == 0)
 			system("clear");
 		else if (strncmp(order, "lock", 4) == 0)
 			do_lock();//对本地文件进行加密
-		else printf("%s: command can not found.\n%s: or the input format is not wrong, please input help to look after right format.\n", order, order);
+		else printf("%s: command can not found.\n%s: or the input format is not wrong.\n", order, order);
 		memset(order, 0, sizeof(order));
 	}
 

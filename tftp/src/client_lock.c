@@ -34,9 +34,9 @@ void do_lock()
 	
 	getchar();
 	printf("Please input a password(len<=50):");
-	char psw[51] = {0}; 
+	char psw[MAX] = {0}; 
 	scanf("%s", psw);
-	getchar();
+	getchar();//吸收垃圾字符
 	char *p = psw;
 	
 	time_t t1 = time(NULL);

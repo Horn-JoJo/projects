@@ -27,7 +27,8 @@ all : $(SERVER) $(CLIENT) copy
 
 copy:
 	cp $(SERVER) ${CLIENT} ../bin/ 
-	cp $(CLIENT) ../client/ 
+	cp $(CLIENT) ../clients/client 
+	cp $(CLIENT) ../clients/client1 
 	cp *.h ../include/
 
 clean:

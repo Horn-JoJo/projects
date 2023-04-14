@@ -14,30 +14,14 @@ void do_get(char order[])
 	if (*file == ' ') 
 	{
 		printf("Please input a file name!!!\n");
-		return;
+		goto ERR;
 	}
 
 	memset(buf, 0, sizeof(buf));
 	confd = socket(AF_INET, SOCK_STREAM, 0);
-	if (0 > confd)
-	{
-		perror("do_get:socket");
-		return;
-	}
-	
-	if (0 > connect(confd, (SA *)&seraddr, sizeof(seraddr)))
-	{
-		perror("do_get:connect");
-		close(confd);
-		return;
-	}
-
-	if (0 > send(confd, order, strlen(order), 0))
-	{
-		perror("do_get:send");
-		close(confd);
-		return;
-	}
+	if (0 > confd) 	err_log("do_get:socket", ERR);
+	if (0 > connect(confd, (SA *)&seraddr, sizeof(seraddr))) err_log("do_get:connect", ERR1);
+	if (0 > send(confd, order, strlen(order), 0))err_log("do_get:send", ERR1);
 
 	int isExist = 0;
 	FILE *fp = NULL;
@@ -74,7 +58,10 @@ void do_get(char order[])
 		fwrite(buf, sizeof(char), size, fp);
 		fflush(fp);
 	}
+ERR1:
 	close(confd);
+ERR:
+	return;
 }
 
 void do_put(char order[])
@@ -90,30 +77,20 @@ void do_put(char order[])
 	if (*file == ' ') 
 	{
 		printf("Please input a file name!!!\n");
-		return;
+		goto ERR;
 	}
 
 	memset(buf, 0, sizeof(buf));
 	confd = socket(AF_INET, SOCK_STREAM, 0);
-	if (0 > confd) 
-	{
-		perror("do_put:socket");
-		return;
-	}
-
-	if (0 > connect(confd, (SA *)&seraddr, sizeof(seraddr)))
-	{
-		perror("do_put:connect");
-		return;
-	}
+	if (0 > confd) err_log("do_put:socket", ERR);
+	if (0 > connect(confd, (SA *)&seraddr, sizeof(seraddr))) err_log("do_put:connect", ERR1);
 	
 	FILE *fp = fopen(file, "r");
 	//FILE *fp = fopen(order + 4, "r");
 	if (NULL == fp)
 	{
 		printf("file not found.\n");
-		close(confd);
-		return;
+		goto ERR1;
 	}
 	
 	strcpy(buf, order);
@@ -132,7 +109,10 @@ void do_put(char order[])
 		}
 		send(confd, buf, size, 0);
 	}
+ERR1:
 	close(confd);
+ERR:
+	return;
 }
 
 void do_list(char cmd[])

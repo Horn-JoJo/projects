@@ -1,6 +1,6 @@
 #include "../include/server.h"
 
-//默认PATH 现在要改成一个指定的pathr然后进行遍历操作
+//默认PATH 现在要改成一个指定的path然后进行遍历操作
 //首先不需要指定路径，先固定死！
 //然后备份list_files() 将其效果修改为ls的效果显示！！！
 
@@ -115,41 +115,6 @@ void list_files()
 	closedir(dirp);
 	send(confd, buf, strlen(buf), 0);
 }
-
-/*void put_file(char order[], int len)
-{
-	//bug :当客户端输入错误的文件名，服务器也创建相应的空文件！！！
-	//解决办法：调整client发送顺序
-	char filename[64] = {0};	
-	char path[128] = PATH;
-	int i;
-	for (i = 0; i < len; i++)
-	{
-		if (' ' == order[i]) break;
-		filename[i] = order[i];
-	}
-
-	strcat(path, filename);
-	FILE *fp = fopen(path, "w+");
-	if (NULL == fp)
-	{
-		perror("fopen");
-		return;
-	}
-
-	char *p = order + i + 1;
-	fwrite(p, sizeof(char), len - i - 1, fp);
-
-	while (1)
-	{
-		memset(buf, 0, sizeof(buf));
-		int size =recv(confd, buf, MAX, 0);
-		if (0 == size) break;
-		fwrite(buf, sizeof(char), size, fp);
-	}
-	fclose(fp);
-}*/
-
 
 void put_file(char order[], int len)
 {

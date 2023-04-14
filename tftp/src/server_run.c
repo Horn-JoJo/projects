@@ -82,7 +82,7 @@ int main(int argc, const char * argv[])
 	//使用poll来
 	while (1)
 	{
-		int ret = poll(fds, num, 1000);//没有事件产生就立即返回
+		int ret = poll(fds, num, 10000);//没有事件产生就立即返回
 		if (0 > ret)//函数调用错误 
 		{
 			perror("poll");
@@ -101,8 +101,10 @@ int main(int argc, const char * argv[])
 				{
 					if (0 == fds[i].fd) 
 					{
-						fgets(buf, 1024, stdin);
-						fputs(buf, stdout);
+						fgets(buf, 1024, stdin);//有换行
+						//判断字符串是什么指令
+						//然后执行什么样的操作
+						fputs(buf, stdout);//这里先不进行扩展！！！
 						memset(buf, 0, sizeof(buf));
 					}
 					else if (listenfd == fds[i].fd)
@@ -118,6 +120,8 @@ int main(int argc, const char * argv[])
 							continue;
 						}
 						/*===使用线程来处理客户端的请求，而主线程只是需要接收连接即可===*/	
+						/*===这里来一个创建一个需要花时间，为了节省时间，可以改进为使用线程池，创建多个线程
+						 * 开始都处于休眠状态，然后如果出现了需要的话，就进行唤醒来回调工作线程*/
 						pthread_t tid;
 						int ret = pthread_create(&tid, NULL, worker, (void *)confd);
 						if (0 > ret) 
