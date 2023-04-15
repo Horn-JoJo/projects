@@ -72,6 +72,8 @@ int main(int argc, const char * argv[])
 	//多线程并发服务器模型
 	while (1)
 	{
+		//客户端 连接 成功后，accept会返回？
+		printf("waiting for connection...\n");
 		confd = accept(listenfd, (SA *)&cliaddr, &addrlen);
 		if (0 > confd)
 		{
