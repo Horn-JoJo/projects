@@ -1,8 +1,14 @@
 #include "../include/server.h"
+#include "thr.h"
+#include "thrpool.h"
 
+//让其作为工作函数，而不是直接作为线程函数
+//用已经初始化就创建好的线程来回调该函数(线程池)
+//而不是每次连接一个创建一个线程，这样会浪费资源
 void * worker(void * arg) 
 {
-	int confd = (int)arg;
+	thrpool_t *this = (thrpool_t *)arg;
+	int confd = this->fd;
 	char order[128] = {0};
 	// memset(order, 0, sizeof(order));
 	//接收命令
@@ -28,7 +34,11 @@ void * worker(void * arg)
 		list_files();
 	}
 	close(confd);
-	pthread_exit((void *)0);
+	
+	//让线程池的该线程失效，挂起。
+	this->fd = INVALIDFD;
+	thr_susend(&(this->thr));
+	//pthread_exit((void *)0);
 }
 
 int main(int argc, const char * argv[])
@@ -65,6 +75,10 @@ int main(int argc, const char * argv[])
 		close(listenfd);
 		return -1;
 	}
+
+	/*===初始化线程池:开启15个线程，并且每个线程对象都是注册的worker工作函数，连接套接字处于无效状态，且线程都处于挂起状态===*/
+	thrpool_init(worker);
+	/*=========================================================*/
 
 	/*使用poll监听可能发生的多个文件描述符事件并进行相应的处理*/
 	//监听键盘
@@ -119,9 +133,10 @@ int main(int argc, const char * argv[])
 							// return -1;
 							continue;
 						}
+//这里可以编译的指定这个宏 -DMYBUG
+//这样就会来一个连接就创建一个线程来处理一次操作
+#if 0
 						/*===使用线程来处理客户端的请求，而主线程只是需要接收连接即可===*/	
-						/*===这里来一个创建一个需要花时间，为了节省时间，可以改进为使用线程池，创建多个线程
-						 * 开始都处于休眠状态，然后如果出现了需要的话，就进行唤醒来回调工作线程*/
 						pthread_t tid;
 						int ret = pthread_create(&tid, NULL, worker, (void *)confd);
 						if (0 > ret) 
@@ -130,7 +145,21 @@ int main(int argc, const char * argv[])
 							break;
 						}
 						pthread_detach(tid);
+#else					
 						/*==========================================================*/	
+						/*===这里来一个创建一个需要花时间，为了节省时间，可以改进为使用线程池，创建多个线程
+						 * 开始都处于休眠状态，然后如果出现了需要的话，就进行唤醒来回调工作线程*/
+						//获取线程池中空闲的线程
+						int id = get_thr_id();
+						if (0 > id) {
+							close(confd);
+							printf("no more thread to be operatered...\n");
+							break;
+						}
+						pool[id].fd = confd;
+						thr_resume(&(pool[id].thr));
+						/*==========================================================*/	
+#endif
 					}
 				}
 			}

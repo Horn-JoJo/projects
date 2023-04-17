@@ -15,11 +15,11 @@ typedef struct __thrpool {
 
 //线程池(有特定用途的线程对象数组)
 //外部引用声明
-extern thrpool_t pool[POLLMAX];
+extern thrpool_t pool[POOLMAX];
 
 //初始化线程池(所有的线程对象都开启线程并处于挂起状态)
 void thrpool_init(PFUN pfun);
 //得到空闲线程
-int get_thr_idx();
+int get_thr_id();
 
 #endif
