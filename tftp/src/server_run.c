@@ -1,6 +1,6 @@
 #include "../include/server.h"
-#include "thr.h"
-#include "thrpool.h"
+#include "../thr.h"
+#include "../thrpool.h"
 
 //让其作为工作函数，而不是直接作为线程函数
 //用已经初始化就创建好的线程来回调该函数(线程池)
