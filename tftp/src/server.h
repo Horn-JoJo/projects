@@ -5,7 +5,7 @@
 #include <pthread.h>
 #include <poll.h>
 
-#define PATH "../res/"
+char PATH =  "../res/";
 struct pollfd fds[MAX];//MAX -net.h头文件中已经包含了
 socklen_t addrlen;
 

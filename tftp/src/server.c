@@ -55,10 +55,8 @@ void list_files()
 
 	//ls的输出格式 文件大小 最后访问时间 上一次修改时间 文件类型 文件名
 	//puts("FILE_SIZE\tLAST_ACCESS_TIME\t\tLAST_MODIFY_TIME\t\tFILE_TYPE\tFILE_NAME");
-	char tmp[1024];
-	memset(tmp, 0, sizeof(tmp));
-	snprintf(tmp, 1024, "FILE_SIZE\tLAST_ACCESS_TIME\t\tLAST_MODIFY_TIME\t\tFILE_TYPE\tFILE_NAME\n");
-	strcat(buf, tmp);
+	snprintf(buf, 1024, "FILE_SIZE\tLAST_ACCESS_TIME\t\tLAST_MODIFY_TIME\t\tFILE_TYPE\tFILE_NAME\n");
+	send(confd, buf, strlen(buf), 0);
 
 	while (1)
 	{
@@ -108,12 +106,13 @@ void list_files()
 
 		//这里当目录内容过多文件时，可能buf一次性装不完到完整的内容！！！,
 		//优化方法：每次只发送一条数据，然后这样的会双方的通信协议需要改变！！！(后续再修改，可以直接参考员原来的代码！！！)
-		snprintf(tmp, 1024, "%d\t\t%s\t%s\t%s\t\t%s\n", size, atime, mtime, type, direntp->d_name);
-		strcat(buf, tmp);
+		/*snprintf(tmp, 1024, "%d\t\t%s\t%s\t%s\t\t%s\n", size, atime, mtime, type, direntp->d_name);*/
+		/*strcat(buf, tmp);*/
+		memset(buf, 0, sizeof(buf));
+		snprintf(buf, 1024, "%d\t\t%s\t%s\t%s\t\t%s\n", size, atime, mtime, type, direntp->d_name);
+		send(confd, buf, strlen(buf), 0);
 	}
-	//buf[strlen(buf)] = ' ';
 	closedir(dirp);
-	send(confd, buf, strlen(buf), 0);
 }
 
 void put_file(char order[], int len)

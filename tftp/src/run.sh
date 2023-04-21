@@ -1,3 +1,4 @@
 #!/bin/sh 
 
-./server 192.168.0.104
+make all
+./server 192.168.0.105

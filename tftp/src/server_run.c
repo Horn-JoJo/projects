@@ -1,10 +1,11 @@
 #include "../include/server.h"
-#include "../thr.h"
-#include "../thrpool.h"
+#include "../include/thr.h"
+#include "../include/thrpool.h"
 
 //让其作为工作函数，而不是直接作为线程函数
 //用已经初始化就创建好的线程来回调该函数(线程池)
 //而不是每次连接一个创建一个线程，这样会浪费资源
+//线程工作函数---接收来自客户端的连接，根据输入的指令进行不同逻辑
 void * worker(void * arg) 
 {
 	thrpool_t *this = (thrpool_t *)arg;
@@ -31,7 +32,7 @@ void * worker(void * arg)
 	}
 	else
 	{
-		list_files();
+		list_files();//修改哈list的处理逻辑
 	}
 	close(confd);
 	
@@ -41,46 +42,55 @@ void * worker(void * arg)
 	//pthread_exit((void *)0);
 }
 
-int main(int argc, const char * argv[])
+int server_init(char IP[]) 
 {
+	
 	//1.创建socket 
 	int listenfd = socket(AF_INET, SOCK_STREAM, 0);
-	if (0 > listenfd)
-	{
-		perror("socket");
-		return -1;
-	}
+	if (0 > listenfd) err_log("socket", ERR);
 
+	//2.允许网络地址重用
+	int on = 1;
+	if (0 > setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on))) err_log("setsockopt", ERR1);
+
+	//3.填充网络地址结构体
+	seraddr.sin_family = AF_INET;
+	seraddr.sin_port = htons(9999);
+	seraddr.sin_addr.s_addr = inet_addr(IP);
+
+	//4.将socket与网络地址结构体进行绑定
+	if (0 > bind(listenfd, (SA *)&seraddr, sizeof(seraddr))) err_log("bind", ERR1);
+	
+	//5.设置监听
+	if (0 > listen(listenfd, 15)) err_log("listen", ERR1);
+
+	return listenfd;
+
+ERR1:
+	close(listenfd);
+ERR:
+	return -1;
+}
+
+int main(int argc, const char * argv[])
+{
 	if (2 != argc) {
 		fprintf(stderr, "FORMAT: ./APP IP\n");
 		return -1;
 	}
-	//2.填充网络地址结构体
-	seraddr.sin_family = AF_INET;
-	seraddr.sin_port = htons(9999);
-	seraddr.sin_addr.s_addr = inet_addr(argv[1]);
 
-	//3.将socket与网络地址结构体进行绑定
-	if (0 > bind(listenfd, (SA *)&seraddr, sizeof(seraddr)))
+	int listenfd = server_init(argv[1]);
+	if (0 > listenfd) 
 	{
-		perror("bind");
-		close(listenfd);
-		return -1;
-	}
-
-	//4.设置监听
-	if (0 > listen(listenfd, 15))
-	{
-		perror("listen");
-		close(listenfd);
-		return -1;
+		printf("server_init failed...\n");
+		goto ERR;
 	}
 
 	/*===初始化线程池:开启15个线程，并且每个线程对象都是注册的worker工作函数，连接套接字处于无效状态，且线程都处于挂起状态===*/
 	thrpool_init(worker);
 	/*=========================================================*/
 
-	/*使用poll监听可能发生的多个文件描述符事件并进行相应的处理*/
+	/*使用poll监听可能发生的多个文件描述符事件并进行相应的处理: 轮询检测*/
 	//监听键盘
 	int num = 0;
 	//添加键盘文件描述符
@@ -165,6 +175,11 @@ int main(int argc, const char * argv[])
 			}
 		}
 	}
+
 	close(listenfd);
 	return 0;
+ERR1:
+	close(listenfd);
+ERR:
+	return -1;
 }
