@@ -3,12 +3,11 @@
 #include "net.h"
 #include "ls.h"
 #include <pthread.h>
-//#include <poll.h>
-#include <sys/epoll.h>
+#include <poll.h>
 
 #define PATH "../res/"
 //char PATH[MAX] =  "../res/";
-//struct pollfd fds[MAX];//MAX -net.h头文件中已经包含了
+struct pollfd fds[MAX];//MAX -net.h头文件中已经包含了
 socklen_t addrlen;
 
 void list_files();//以ls 的形式列出给定目录下的文件信息以及大小等

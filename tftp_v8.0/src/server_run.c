@@ -35,7 +35,7 @@ void * worker(void * arg)
 		list_files();//修改哈list的处理逻辑
 	}
 	close(confd);
-
+	
 	//让线程池的该线程失效，挂起。
 	this->fd = INVALIDFD;
 	thr_susend(&(this->thr));
@@ -44,7 +44,7 @@ void * worker(void * arg)
 
 int server_init(char IP[]) 
 {
-
+	
 	//1.创建socket 
 	int listenfd = socket(AF_INET, SOCK_STREAM, 0);
 	if (0 > listenfd) err_log("socket", ERR);
@@ -60,7 +60,7 @@ int server_init(char IP[])
 
 	//4.将socket与网络地址结构体进行绑定
 	if (0 > bind(listenfd, (SA *)&seraddr, sizeof(seraddr))) err_log("bind", ERR1);
-
+	
 	//5.设置监听
 	if (0 > listen(listenfd, 15)) err_log("listen", ERR1);
 
@@ -89,87 +89,7 @@ int main(int argc, const char * argv[])
 	/*===初始化线程池:开启15个线程，并且每个线程对象都是注册的worker工作函数，连接套接字处于无效状态，且线程都处于挂起状态===*/
 	thrpool_init(worker);
 	/*=========================================================*/
-#if 1 
-	/*使用epoll监听可能发生的多个文件描述符事件并进行相应的处理:内核检测到文件描述符产生事件后，会将产生事件的文件描述符都移到动文件描述符表的前面位置*/
-	//1.创建epoll白板
-	int epollfd = epoll_create1(0);
-	if (0 > epollfd) err_log("epoll_create1", ERR);
 
-	//2.像epoll中添加需要监听的文件描述符--这里首先添加的是标准输入
-	struct epoll_event ev[2];//最大的响应事件数
-	ev[0].data.fd = 0;//需要监听标准输入
-	ev[0].events = EPOLLIN | EPOLLET;
-	//添加到epollfd面板
-	if (0 > epoll_ctl(epollfd, EPOLL_CTL_ADD, 0, &ev[0])) err_log("epoll_ctl", ERR);
-
-	//添加监听文件描述符
-	ev[1].data.fd = listenfd;
-	ev[1].events = EPOLLIN | EPOLLET;
-	//添加到epollfd面板
-	if (0 > epoll_ctl(epollfd, EPOLL_CTL_ADD, listenfd, &ev[1])) err_log("epoll_ctl", ERR);
-	/*=====================================*/
-	// char order[128];
-	addrlen = sizeof(cliaddr);
-
-	//使用epoll来
-	struct epoll_event events[MAX];//最大的响应事件数
-	while (1)
-	{
-		int nfds = epoll_wait(epollfd, events, MAX, 10000);//没有事件产生就立即返回
-		if (0 > nfds)//函数调用错误 
-		{
-			perror("epoll_wait");
-			break;
-		}
-		else if (0 == nfds)//超时
-		{
-			printf("timeout...\n");
-			continue;
-		}
-		else //有事件产生，则遍历是哪个文件描述符产生了事件
-		{
-			for (int i = 0; i < nfds; i++) 
-			{
-				if (0 == events[i].data.fd) 
-				{
-					fgets(buf, 1024, stdin);//有换行
-					//判断字符串是什么指令
-					//然后执行什么样的操作
-					fputs(buf, stdout);//这里先不进行扩展！！！
-					memset(buf, 0, sizeof(buf));
-
-				}
-				else if (listenfd == events[i].data.fd) 
-				{
-					confd = accept(listenfd, (SA *)&cliaddr, &addrlen);
-					printf("client[%s] connect successfully\n", inet_ntoa(cliaddr.sin_addr));
-
-					if (0 > confd)
-					{
-						perror("accept");
-						// close(listenfd);
-						// return -1;
-						continue;
-					}
-					/*==========================================================*/	
-					/*===这里来一个创建一个需要花时间，为了节省时间，可以改进为使用线程池，创建多个线程
-					 * 开始都处于休眠状态，然后如果出现了需要的话，就进行唤醒来回调工作线程*/
-					//获取线程池中空闲的线程
-					int id = get_thr_id();
-					if (0 > id) {
-						close(confd);
-						printf("no more thread to be operatered...\n");
-						break;
-					}
-					pool[id].fd = confd;
-					thr_resume(&(pool[id].thr));
-					/*==========================================================*/	
-				}
-
-			}
-		}	
-	}
-#else 
 	/*使用poll监听可能发生的多个文件描述符事件并进行相应的处理: 轮询检测*/
 	//监听键盘
 	int num = 0;
@@ -223,8 +143,8 @@ int main(int argc, const char * argv[])
 							// return -1;
 							continue;
 						}
-						//这里可以编译的指定这个宏 -DMYBUG
-						//这样就会来一个连接就创建一个线程来处理一次操作
+//这里可以编译的指定这个宏 -DMYBUG
+//这样就会来一个连接就创建一个线程来处理一次操作
 #if 0
 						/*===使用线程来处理客户端的请求，而主线程只是需要接收连接即可===*/	
 						pthread_t tid;
@@ -255,7 +175,7 @@ int main(int argc, const char * argv[])
 			}
 		}
 	}
-#endif
+
 	close(listenfd);
 	return 0;
 ERR1:
