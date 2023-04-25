@@ -15,10 +15,16 @@ void get_file(char order[])
 	}
 	if (*file == ' ') return;
 	printf("filename = %s\n", file);
+	
+	//1)开始初始化为资源的根路径
+	char path[128] = RES_ROOT;
+	
+	//2)将当前登录的用户名追加到根路径后
+	//称为用户独立所属的资源路径(这一步暂时不考虑)
+	/*strcat(path, username)*/
+	/*strcat(path, "/");*/
 
-	char path[128] = PATH;
-	/*char path[128] = {0};*/
-	/*strcpy(path, PATH);*/
+	//3)追加文件名
 	strcat(path, file);
 	FILE *fp = fopen(path, "r");
 	if (NULL == fp)
@@ -42,13 +48,15 @@ void get_file(char order[])
 
 void list_files()
 {
-	//strcpy(dir_path ,PATH);//dir_path是一个指针，没有分配空间，直接copy会报段错误
 	
-	//dirp = opendir(dir_path);
-	dirp = opendir(PATH);//打开默认的文件资源存路径
+	//需要显示当前用户资源路径下的文件
+	//因此需要追加用户名到资源根路径后
+	/*char path[128] = RES_ROOT;*/
+	/*strcat(RES_ROOT, username);*/
+	dirp = opendir(RES_ROOT);//打开默认的文件资源存路径
 	if (NULL == dirp)
 	{
-		printf("ls: can not access '%s': %s", PATH, strerror(errno));
+		printf("ls: can not access '%s': %s", RES_ROOT, strerror(errno));
 		return;
 	}
 
@@ -74,7 +82,7 @@ void list_files()
 
 		//当前没能修改路径，因此file_path的路径为默认的PATH宏常量指定的路径
 		//strcpy(file_path, dir_path);
-		strcpy(file_path, PATH);
+		strcpy(file_path, RES_ROOT);
 		if (strcmp(direntp->d_name, ".") == 0 || strcmp(direntp->d_name, "..") == 0) continue;
 
 		//追加当前的文件名形成完成的文件路径
@@ -122,7 +130,7 @@ void put_file(char order[], int len)
 	char filename[64] = {0};	
 	/*char path[128] = {0};*/
 	/*strcpy(path, PATH);*/
-	char path[128] = PATH;
+	char path[128] = RES_ROOT;
 	int i, j = 0;
 	//从第一个空格开始
 	for (i = 0; i < len; i++)
@@ -131,7 +139,11 @@ void put_file(char order[], int len)
 		if (' ' == order[i]) continue;
 		filename[j++] = order[i];
 	}
-
+	
+	/*需要获取当前用户资源路径下
+	 *strcat(path, username);
+	 *strcat(path, "/");
+	 * */
 	strcat(path, filename);
 	FILE *fp = fopen(path, "w+");
 	if (NULL == fp)

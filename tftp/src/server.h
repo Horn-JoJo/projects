@@ -6,7 +6,8 @@
 //#include <poll.h>
 #include <sys/epoll.h>
 
-#define PATH "../res/"
+#define RES_ROOT "../res/"
+//根据不同的客户创建不同的资源路径：只需要在根路径下追加新的目录名字就行
 //char PATH[MAX] =  "../res/";
 //struct pollfd fds[MAX];//MAX -net.h头文件中已经包含了
 socklen_t addrlen;

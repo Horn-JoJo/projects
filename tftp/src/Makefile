@@ -29,9 +29,6 @@ copy:
 	cp $(SERVER) ${CLIENT} ../bin/ 
 	cp $(CLIENT) ../clients/client 
 	cp $(CLIENT) ../clients/client1 
-	cp *.h ../include/
-	cp ./run2.sh ../clients/client/
-	cp ./run2.sh ../clients/client1/
 
 clean:
 	rm $(SERVER_OBJS) $(CLIENT_OBJS) $(SERVER) $(CLIENT)
