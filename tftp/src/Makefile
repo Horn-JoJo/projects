@@ -18,7 +18,7 @@ $(SERVER_OBJS) : $(SERVER_SRC)
 	$(CC) $(CFLAGS) -c  $^
 
 $(CLIENT) : $(CLIENT_OBJS)
-	$(CC) -o $@ $^
+	$(CC) -o $@ $^ -lsqlite3
 
 $(CLIENT_OBJS) : $(CLIENT_SRC)
 	$(CC) $(CFLAGS) -c $^

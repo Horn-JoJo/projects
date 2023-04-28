@@ -24,5 +24,11 @@ SAI seraddr, cliaddr;//服务器端的网络地址，客户端的网络地址
 		goto ERR;\
 	}while(0);
 //socklen_t addrlen;//accept时需要指定客户端的长度
+
+#define print(msg, pos)\
+	do{\
+		printf(msg);\
+		goto pos;\
+	}while(0);
 #endif
 
