@@ -1,0 +1,3 @@
+/home/jojo/github/projects/test/build/CMakeFiles/app.dir
+/home/jojo/github/projects/test/build/CMakeFiles/edit_cache.dir
+/home/jojo/github/projects/test/build/CMakeFiles/rebuild_cache.dir
